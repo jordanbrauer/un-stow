@@ -1,5 +1,5 @@
 {
-    "name": "jordanbrauer/stow-unstow",
+    "name": "jordanbrauer/un-stow",
     "description": "Offers a nice & powerful OOP and/or FP interface for PHP's `pack` and `unpack` functions.",
     "type": "library",
     "authors": [
