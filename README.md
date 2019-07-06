@@ -7,7 +7,7 @@ Offers a nice & powerful OOP and/or FP interface for PHP's `pack` and `unpack` f
 Install with Composer
 
 ```bash
-$ composer require jordanbrauer/stow-unstow
+$ composer require jordanbrauer/un-stow
 ```
 
 ## Examples
