@@ -1,0 +1,26 @@
+{
+    "name": "jordanbrauer/stow-unstow",
+    "description": "Offers a nice & powerful OOP and/or FP interface for PHP's `pack` and `unpack` functions.",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Jordan Brauer",
+            "email": "18744334+jordanbrauer@users.noreply.github.com"
+        }
+    ],
+    "require": {
+        "php": "^7.1"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^3.4",
+        "phpunit/phpunit": "^7.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "": "src/"
+        },
+        "files": [
+            "src/helpers.php"
+        ]
+    }
+}
