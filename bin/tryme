@@ -1,0 +1,62 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types = 1);
+
+system('clear');
+ini_set('display_errors', 'on');
+error_reporting(E_ALL);
+
+require_once './vendor/autoload.php';
+
+# ==============================================================================
+# Hello World
+# ==============================================================================
+
+echo stow('48656C6C6F20576F726C6421')->hexNibbleHigh('*')->close();
+echo PHP_EOL;
+
+dump(unstow('Hello World!')->hexNibbleHigh('*', 'hello_world')->open());
+echo PHP_EOL;
+
+# ==============================================================================
+# GIF Header
+# ==============================================================================
+
+$stream = fopen('./tests/Portal.gif', 'rb');
+$bytes = fread($stream, 20);
+
+fclose($stream);
+
+$gifHeader = unstow($bytes)
+    ->spacePaddedString(6, 'version')
+    ->unsignedChar(2, 'width')
+    ->unsignedChar(2, 'height')
+    ->unsignedChar(1, 'flag')
+    ->nullFill(11)
+    ->unsignedChar(1, 'aspect')
+    ->open()
+    ;
+
+dump($gifHeader);
+
+# ==============================================================================
+# Reusing Packers
+# ==============================================================================
+
+$packer = stow()
+    ->unsignedShort('', Stow::BIG_ENDIAN_16_BIT)
+    ->unsignedShort('', Stow::LITTLE_ENDIAN_16_BIT)
+    ->signedChar('*');
+$binary = $packer->load(0x1234, 0x5678, 65, 66)->close();
+
+dump($binary);
+
+$packer = stow()
+    ->unsignedShort('', Stow::BIG_ENDIAN_16_BIT)
+    ->unsignedShort('', Stow::LITTLE_ENDIAN_16_BIT)
+    ->signedChar('*')
+    ->standby();
+$binary = $packer(0x1234, 0x5678, 65, 66);
+
+dump($binary);
