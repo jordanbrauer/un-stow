@@ -1,6 +1,9 @@
 # Created by https://www.gitignore.io/api/vim,git,linux,macos,emacs,windows,composer,phpstorm,sublimetext
 # Edit at https://www.gitignore.io/?templates=vim,git,linux,macos,emacs,windows,composer,phpstorm,sublimetext
 
+### PHP CS Fixer ###
+.php_cs.cache
+
 ### Composer ###
 composer.phar
 /vendor/
