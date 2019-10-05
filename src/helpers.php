@@ -8,7 +8,8 @@ declare(strict_types = 1);
  * @param mixed ...$bytes
  * @return Packable
  */
-function stow(...$bytes): Packable {
+function stow(...$bytes): Packable
+{
     return new \Stow(...$bytes);
 }
 
@@ -18,6 +19,7 @@ function stow(...$bytes): Packable {
  * @param mixed ...$bytes
  * @return Unpackable
  */
-function unstow(...$bytes): Unpackable {
+function unstow(...$bytes): Unpackable
+{
     return new \Unstow(...$bytes);
 }

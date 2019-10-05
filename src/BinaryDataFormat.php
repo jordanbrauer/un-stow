@@ -3,23 +3,23 @@
 declare(strict_types = 1);
 
 abstract class BinaryDataFormat implements ArrayAccess, Countable, IteratorAggregate
-{   
+{
     public const BIG_ENDIAN_16_BIT = 1;
-    
+
     public const BIG_ENDIAN_32_BIT = 4;
-    
+
     public const BIG_ENDIAN_64_BIT = 7;
 
     public const BIG_ENDIAN_MACHINE_DEPENDENT = 10;
 
     public const LITTLE_ENDIAN_16_BIT = 2;
-    
+
     public const LITTLE_ENDIAN_32_BIT = 5;
-    
+
     public const LITTLE_ENDIAN_64_BIT = 8;
 
     public const LITTLE_ENDIAN_MACHINE_DEPENDENT = 11;
-    
+
     public const MACHINE_ORDER_16_BIT = 0;
 
     public const MACHINE_ORDER_32_BIT = 3;
@@ -30,40 +30,40 @@ abstract class BinaryDataFormat implements ArrayAccess, Countable, IteratorAggre
 
     protected const SEPARATOR = '';
 
-    protected static $codesUnsignedShort = [
-        self::MACHINE_ORDER_16_BIT => 'S',
-        self::BIG_ENDIAN_16_BIT => 'n',
-        self::LITTLE_ENDIAN_16_BIT => 'v',
+    protected static $codesDouble = [
+        self::MACHINE_ORDER_AND_REPRESENTATION => 'd',
+        self::LITTLE_ENDIAN_MACHINE_DEPENDENT  => 'e',
+        self::BIG_ENDIAN_MACHINE_DEPENDENT     => 'E',
+    ];
+
+    protected static $codesFloat = [
+        self::MACHINE_ORDER_AND_REPRESENTATION => 'f',
+        self::LITTLE_ENDIAN_MACHINE_DEPENDENT  => 'g',
+        self::BIG_ENDIAN_MACHINE_DEPENDENT     => 'G',
     ];
 
     protected static $codesUnsignedLong = [
         self::MACHINE_ORDER_32_BIT => 'L',
-        self::BIG_ENDIAN_32_BIT => 'N',
+        self::BIG_ENDIAN_32_BIT    => 'N',
         self::LITTLE_ENDIAN_32_BIT => 'V',
     ];
 
     protected static $codesUnsignedLongLong = [
         self::MACHINE_ORDER_64_BIT => 'Q',
-        self::BIG_ENDIAN_64_BIT => 'J',
+        self::BIG_ENDIAN_64_BIT    => 'J',
         self::LITTLE_ENDIAN_64_BIT => 'P',
     ];
 
-    protected static $codesFloat = [
-        self::MACHINE_ORDER_AND_REPRESENTATION => 'f',
-        self::LITTLE_ENDIAN_MACHINE_DEPENDENT => 'g',
-        self::BIG_ENDIAN_MACHINE_DEPENDENT => 'G',
+    protected static $codesUnsignedShort = [
+        self::MACHINE_ORDER_16_BIT => 'S',
+        self::BIG_ENDIAN_16_BIT    => 'n',
+        self::LITTLE_ENDIAN_16_BIT => 'v',
     ];
 
-    protected static $codesDouble = [
-        self::MACHINE_ORDER_AND_REPRESENTATION => 'd',
-        self::LITTLE_ENDIAN_MACHINE_DEPENDENT => 'e',
-        self::BIG_ENDIAN_MACHINE_DEPENDENT => 'E',
-    ];
+    protected $bytes;
 
     protected $format = [];
 
-    protected $bytes;
-    
     public function __construct(...$bytes)
     {
         $this->bytes = $bytes;
@@ -74,25 +74,33 @@ abstract class BinaryDataFormat implements ArrayAccess, Countable, IteratorAggre
         return implode(static::SEPARATOR, $this->format);
     }
 
-    public function load(...$bytes): Packable
+    /**
+     * Return a count of the bytes in the current instance of stow.
+     *
+     * @return int
+     */
+    public function count(): int
+    {
+        return count($this->bytes);
+    }
+
+    /**
+     * Retrieve an external iterator with the currently stowed bytes as it's
+     * items.
+     *
+     * @throws Exception
+     * @return Traversable|Iterator|Generator
+     */
+    public function getIterator(): Traversable
+    {
+        return new ArrayIterator($this->bytes);
+    }
+
+    public function load(...$bytes): BinaryDataFormat
     {
         $this->bytes = $bytes;
-        
+
         return $this;
-    }
-
-    public function standby(): Closure
-    {
-        return function (...$bytes): string {
-            return $this->load(...$bytes)->close();
-        };
-
-        // return fn (): string => $this->close();
-    }
-
-    public function reset(...$bytes): void
-    {
-        $this->format = [];
     }
 
     /**
@@ -131,7 +139,7 @@ abstract class BinaryDataFormat implements ArrayAccess, Countable, IteratorAggre
 
             return;
         }
-        
+
         $this->bytes[$offset] = $value;
     }
 
@@ -145,27 +153,17 @@ abstract class BinaryDataFormat implements ArrayAccess, Countable, IteratorAggre
     {
         unset($this->byte[$offset]);
     }
-    
-    /**
-     * Return a count of the bytes in the current instance of stow.
-     *
-     * @return int
-     */
-    public function count(): int
+
+    public function reset(...$bytes): void
     {
-        return count($this->bytes);
+        $this->format = [];
     }
 
-    /**
-     * Retrieve an external iterator with the currently stowed bytes as it's
-     * items.
-     *
-     * @throws Exception
-     * @return Traversable|Iterator|Generator
-     */
-    public function getIterator(): Traversable
+    public function standby(): Closure
     {
-        return new ArrayIterator($this->bytes);
+        return function (...$bytes): string {
+            return $this->load(...$bytes)->close();
+        };
     }
 
     protected function codeFromByteOrderOrThrow(int $order, array $codes): string
@@ -175,7 +173,7 @@ abstract class BinaryDataFormat implements ArrayAccess, Countable, IteratorAggre
         if (!$code) {
             throw new \InvalidArgumentException('Invalid argument for $order: '.$order);
         }
-        
+
         return $code;
     }
 
@@ -183,7 +181,7 @@ abstract class BinaryDataFormat implements ArrayAccess, Countable, IteratorAggre
     {
         $isString = is_string($repeater);
         $isNumeric = is_numeric($repeater);
-        
+
         if (!($isString and $isNumeric) and !$isNumeric and '*' !== $repeater and !empty($repeater)) {
             throw new \InvalidArgumentException('Invalid argument for $repeater: '.$repeater);
         }
@@ -195,9 +193,9 @@ abstract class BinaryDataFormat implements ArrayAccess, Countable, IteratorAggre
         if ($isNumeric) {
             $repeater = (string) ((int) $repeater);
         }
-        
+
         $this->format[] = trim($code).$repeater.trim($key);
-        
+
         return $this;
     }
 }

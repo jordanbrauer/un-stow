@@ -5,22 +5,7 @@ declare(strict_types = 1);
 use PHPUnit\Framework\TestCase;
 
 final class Unstowtest extends TestCase
-{   
-    /**
-     * @dataProvider formats
-     * @param Closure $format
-     * @param mixed $expected
-     * @param mixed[] ...$bytes
-     * @return void
-     */
-    public function testUnpackingDataInVariousFormats(Closure $format, $expected, ...$bytes): void
-    {
-        $actual = $format(unstow(...$bytes))->open();
-        
-        $this->assertInternalType('array', $actual);
-        $this->assertSame($expected, $actual);
-    }
-
+{
     /**
      * Provides a closure that accepts an `Unpackable` and will return that
      * instance, unopened. Expected and actual data are also supplied for the
@@ -38,7 +23,7 @@ final class Unstowtest extends TestCase
 
             return $bytes;
         };
-        
+
         yield from [
             'GIF image header' => [
                 function (Unpackable $unpacker): Unpackable {
@@ -50,15 +35,30 @@ final class Unstowtest extends TestCase
                         ->unsignedChar(1, 'aspect');
                 }, [
                     "version" => "GIF89a",
-                    "width1" => 135,
-                    "width2" => 0,
+                    "width1"  => 135,
+                    "width2"  => 0,
                     "height1" => 180,
                     "height2" => 0,
-                    "flag" => 212,
-                    "aspect" => 0,
+                    "flag"    => 212,
+                    "aspect"  => 0,
                 ],
                 $stream('./tests/Portal.gif', 'rb', 20),
-            ]
+            ],
         ];
+    }
+
+    /**
+     * @dataProvider formats
+     * @param Closure $format
+     * @param mixed $expected
+     * @param mixed[] ...$bytes
+     * @return void
+     */
+    public function testUnpackingDataInVariousFormats(Closure $format, $expected, ...$bytes): void
+    {
+        $actual = $format(unstow(...$bytes))->open();
+
+        $this->assertInternalType('array', $actual);
+        $this->assertSame($expected, $actual);
     }
 }
