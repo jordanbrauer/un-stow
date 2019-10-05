@@ -5,21 +5,7 @@ declare(strict_types = 1);
 use PHPUnit\Framework\TestCase;
 
 final class Stowtest extends TestCase
-{   
-    /**
-     * @dataProvider formats
-     * @param Closure $format
-     * @param mixed $expected
-     * @param mixed[] ...$bytes
-     * @return void
-     */
-    public function testPackingDataInVariousFormats(Closure $format, $expected, ...$bytes): void
-    {
-        $actual = $format(stow(...$bytes))->close();
-        
-        $this->assertSame($expected, $actual);
-    }
-
+{
     /**
      * Provides a closure that accepts a `Packable` and will return that
      * Packable, unclosed. Expected and actual data are also supplied for the
@@ -47,5 +33,19 @@ final class Stowtest extends TestCase
                 '48656C6C6F20576F726C6421',
             ],
         ];
+    }
+
+    /**
+     * @dataProvider formats
+     * @param Closure $format
+     * @param mixed $expected
+     * @param mixed[] ...$bytes
+     * @return void
+     */
+    public function testPackingDataInVariousFormats(Closure $format, $expected, ...$bytes): void
+    {
+        $actual = $format(stow(...$bytes))->close();
+
+        $this->assertSame($expected, $actual);
     }
 }
