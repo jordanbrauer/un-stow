@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="vendor/autoload.php"
+         colors="true"
+         backupGlobals="false"
+         backupStaticAttributes="false"
+         timeoutForLargeTests="900">
+  <testsuite name="Un Stow Testsuite">
+    <directory>./tests/</directory>
+  </testsuite>
+  <filter>
+    <whitelist processUncoveredFilesFromWhitelist="false">
+        <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
+</phpunit>
